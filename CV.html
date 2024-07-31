@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV</title>
+    <style>
+        *
+        {
+            margin: 0;
+        }
+        * button
+        {
+            border: 2px solid black;
+        }
+        
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button
+        {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #page
+        {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #header
+        {
+            padding: 3%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10vw;
+            background-color: forestgreen;
+            color: white;
+        }
+        #header button
+        {
+            position: absolute;
+            left: 2vw;
+            font-size: x-large;
+            border-radius: 10px;
+            background-color: forestgreen;
+            color: white;
+        }
+
+        #mid
+        {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+
+        #add
+        {
+            width: 50vw;
+            height: 50vw;
+            border-radius: 50%;
+            font-size: 15vw;
+            background-color: forestgreen;
+            color: white;
+        }
+
+        #validades
+        {
+            width: 50%;
+            height: 10%;
+            background-color: forestgreen;
+            font-size: 5vw;
+            color: white;
+            border-radius: 10px;
+        }
+
+        #foot
+        {
+            padding: 2%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: forestgreen;
+            color: white;
+        }
+        #foot button
+        {
+            font-size: 4vw;
+            border: 0;
+            background-color: forestgreen;
+            color: white;
+        }
+        #message
+        {
+            position: absolute;
+            width: 90vw;
+            height: 90vh;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-direction: column;
+            left: 5vw;
+            top: 5vh;
+            border: 1px solid black;
+        }
+        #message p
+        {
+            font-size: x-large;
+            text-align: center;
+
+        }
+        #message input
+        {
+            background-color: darkgray;
+            width: 80vw;
+            font-size: x-large;
+            border-radius: 10px;
+        }
+
+        #X
+        {
+            position: absolute;
+            left: 5vw;
+            top: 5vh;
+            width: 10vw;
+            height: 10vw;
+            font-size: 7vw;
+            border-radius: 50%;
+            background-color: forestgreen;
+        }
+
+        #next
+        {
+            position: absolute;
+            right: 5vw;
+            bottom: 5vh;
+            width: 80vw;
+            height: 10vw;
+            font-size: 7vw;
+            border-radius: 10px;
+            background-color: forestgreen;
+        }
+
+        #content
+        {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        #ops
+        {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            max-height: 25vh;
+            overflow: auto;
+        }
+
+        #op
+        {
+            width: 80vw;
+            font-size: x-large;
+        }
+
+        #lista
+        {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            margin-top: 2vh;
+            max-height: 80vh;
+            overflow: auto;
+        }
+        #linha
+        {
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            flex-direction: row;
+            width: 100%;
+        }
+        #linha p
+        {
+            border: 1px solid black;
+            width: 100%;
+            text-align: center;
+            overflow: auto;
+            font-size: x-large;
+        }
+    </style>
+</head>
+<body>
+    <div id="page"></div>
+    <script>
+        //#region Global varialbles
+
+        const _name_storage = "valid_list";
+        const _page = document.getElementById("page");
+        
+        let items_storage = {};
+        let validity_storage = {};
+        let current_page = "Home";
+
+        //#endregion
+
+        //#region Helplers
+
+        function Helpler_cleanPage()
+        {
+            while (_page.firstChild)
+            {
+                _page.removeChild(_page.firstChild);
+            }
+        }
+
+        function Helpler_differenceDays(date)
+        {
+            const _current_date = new Date();
+            const _new_date = new Date(date);
+            const _msPorDia = 24 * 60 * 60 * 1000;
+            const _claculo = _new_date.getTime() -  _current_date.getTime();
+
+            return Math.ceil(_claculo/_msPorDia);
+        }
+
+        function Helpler_nextPage()
+        {
+            //Garantindo que a pagina esta limpa
+            Helpler_cleanPage();
+
+            if(current_page == "Home")
+            {
+                current_page = "List";
+                List_createPage();
+            }
+            else
+            {
+                current_page = "Home";
+                Home_createPage();
+            }
+        }
+
+        function Helpler_createButton(name="text", func=(e)=>console.log(e), id=name)
+        {
+            const _bt = document.createElement("button");
+            _bt.innerText = name;
+            _bt.id = id;
+            _bt.onclick = func;
+            return _bt;
+        }
+
+        function Helpler_createDiv(id="")
+        {
+            const _div = document.createElement("div");
+            _div.id = id;
+            return _div;
+        }
+
+        function Helpler_createText(text="")
+        {
+            const _text = document.createElement("p");
+            _text.innerText = text;
+            return _text;
+        }
+
+        function Helpler_getStorage()
+        {
+            const string_item = window.localStorage.getItem(_name_storage);
+            if(string_item)
+            {
+                items_storage = JSON.parse(string_item)[0];
+                validity_storage = JSON.parse(string_item)[1];
+            }
+            else
+            {
+                Helpler_setStorage();
+            }
+
+            let veri = false;
+            Object.keys(validity_storage).forEach((key) => {
+                let array = [...validity_storage[key]];
+                validity_storage[key].forEach((date) => {
+                    const _dif = Helpler_differenceDays(date);
+                    console.log(_dif)
+                    if(_dif <= -3) 
+                    {
+                        array = array.filter((a) => a != date);
+                        veri = true;
+                    }
+                });
+                validity_storage[key] = array;
+                if(array.length < 1) delete validity_storage[key];
+            })
+
+            if(veri)
+            {
+                Helpler_setStorage();
+            }
+        }
+
+        function Helpler_setStorage()
+        {
+            const string_item = JSON.stringify([items_storage, validity_storage]);
+            window.localStorage.setItem(_name_storage, string_item);
+        }
+
+        function Helpler_searchId(id)
+        {
+            const _keys = Object.keys(items_storage);
+            if(id <= 0) return [];
+            return _options = _keys.filter((key)=> key.includes(id));
+        }
+
+        //#endregion
+        
+        //#region Components
+        
+        function Component_header()
+        {
+            const _div = Helpler_createDiv("header");
+            if(current_page == "List")
+            {
+                _div.appendChild(Helpler_createButton("voltar", Helpler_nextPage));
+            }
+            _div.appendChild(Helpler_createText(current_page));
+
+            _page.appendChild(_div);
+        }
+        
+        //#endregion
+
+        //#region Mesages
+        
+        function Message_add(pai) {
+            Helpler_getStorage();
+            
+            const _product = {id: "", name: "", date: undefined};
+            let next = false;
+            let new_item = false;
+            
+            function changeId(e)
+            {
+                const _div = pai.children[1];
+                
+                _product.id = e.target.value;
+                
+                const _options = Helpler_searchId(_product.id);
+
+                _div.innerHTML = "";
+                _options.forEach((option) => {
+                    _div.appendChild(Helpler_createButton(option, () => {
+                        _product.id = option;
+                        _product.name = items_storage[option];
+                        next = true;
+                        create();
+                    }, "op"))
+                });
+                if(_product.id.length >= 1)
+                {
+                    next = true;
+                }
+            }
+
+            function changeName(e)
+            {
+                const _div = pai.children[1];
+                
+                _product.name = e.target.value;
+                
+                const _options = Helpler_searchId(_product.name);
+                if(_product.name.length < 1)
+                {
+                    next = false;
+                }
+                else
+                {
+                    next = true;
+                }
+            }
+
+            function changeDate(e)
+            {
+                const _div = pai.children[1];
+                
+                _product.date = e.target.value;
+                
+                const _options = Helpler_searchId(_product.date);
+                if(_product.date.length < 1)
+                {
+                    next = false;
+                }
+                else
+                {
+                    next = true;
+                }
+            }
+
+            function clickSave()
+            {
+                if(new_item)
+                {
+                    items_storage[_product.id] = _product.name;
+                }
+                if(Object.keys(validity_storage).filter((key) => key == _product.id).length > 0)
+                {
+                    validity_storage[_product.id] = [...validity_storage[_product.id], _product.date];
+                }
+                else
+                {
+                    validity_storage[_product.id] = [_product.date];
+                }
+                Helpler_setStorage();
+                _page.removeChild(document.getElementById("message"));
+            }
+
+            function create()
+            {
+                const button = Helpler_createButton(">", create, "next");
+                if(_product.id == "" || !next)
+                {
+                    pai.innerHTML = `<p for=name>Codigo de barras:<input type=number id=id></input></p><div id=ops></div>`;
+                    pai.firstChild.children[0].onkeyup = changeId;
+                }
+                else if(_product.name == "" || !next)
+                {
+                    new_item = true;
+                    pai.innerHTML = `<p for=name>Nome do produto:<input type=text id=name></input></p>`;
+                    pai.firstChild.children[0].onkeyup = changeName;
+                }
+                else
+                {
+                    pai.innerHTML = `<p for=name>validade do produto:<input type=date id=date></input></p>`;
+                    pai.firstChild.children[0].onchange = changeDate;
+                    button.onclick = clickSave;
+                }
+                pai.appendChild(button);
+            }
+            create();
+        }
+        
+        function Message_createPage(func)
+        {
+            const _message = Helpler_createDiv("message");
+            const _content = Helpler_createDiv("content");
+
+            _message.appendChild(Helpler_createButton("X", () => _page.removeChild(_message)));
+            func(_content);
+            _message.appendChild(_content);
+            
+            _page.appendChild(_message);
+        }
+        
+        //#endregion
+
+        //#region Home
+
+        function Home_createPage()
+        {
+            Component_header();
+
+            const _mid = Helpler_createDiv("mid");
+            _mid.appendChild(Helpler_createButton("+", ()=>Message_createPage(Message_add), "add"));
+            _mid.appendChild(Helpler_createButton("validades", Helpler_nextPage));
+            _page.appendChild(_mid);
+
+            const _foot = Helpler_createDiv("foot");
+            _foot.appendChild(Helpler_createButton("criado por lucca focosi", () => window.open("http://www.linkedin.com/in/lucca-focosi-6399b82b8", "_blank")));
+            _page.appendChild(_foot);
+        }
+
+        //#endregion
+                
+        //#region List
+
+        function List_cor(date)
+        {
+            const _dif = Helpler_differenceDays(date);
+            if(_dif < 0) return "gray";
+            if(_dif < 3) return "red";
+            return "lime";
+        }
+
+        function List_ord(a, b)
+        {
+            let sing = 0
+            const a_a = a[2].split("-");
+            const b_a = b[2].split("-");
+            for (let index = 0; index < a_a.length; index++) {
+                if(a_a[index] > b_a[index]) 
+                {
+                    sing = 1;
+                    break;
+                }
+                if(a_a[index] < b_a[index]) 
+                {
+                    sing = -1;
+                    break;
+                }
+            }
+            return sing;
+        }
+
+        function List_correctingDate(date)
+        {
+            const cut = date.split("-");
+            return `${cut[2]}/${cut[1]}/${cut[0]}`;
+        }
+
+        function List_assembleList()
+        {
+            const _div = Helpler_createDiv("lista");
+            const _list = [];
+            const itemList = (id, name, date, cor) => {
+                const _line = Helpler_createDiv("linha");
+                _line.style.backgroundColor = cor;
+                _line.appendChild(Helpler_createText(id));
+                _line.appendChild(Helpler_createText(name));
+                _line.appendChild(Helpler_createText(date));
+                return _line;
+            };
+
+            _div.appendChild(itemList("id","nome","validade", "forestgreen"));
+
+            Object.keys(validity_storage).forEach((key) => {
+                const id = key;
+                const name = items_storage[key];
+                validity_storage[key].forEach((date) => {
+                    _list.push([id, name, date]);
+                });
+            });
+            _list.sort(List_ord);
+            _list.forEach((data) => {
+                _div.appendChild(itemList(data[0],data[1],List_correctingDate(data[2]), List_cor(data[2])));
+            });
+
+            _page.appendChild(_div);
+        }
+
+
+        function List_createPage()
+        {
+            Helpler_getStorage();
+            
+            Component_header();
+
+            List_assembleList();
+        }
+
+        //#endregion
+
+        Home_createPage();
+    </script>
+</body>
+</html>
