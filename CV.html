@@ -301,7 +301,6 @@
                 let array = [...validity_storage[key]];
                 validity_storage[key].forEach((date) => {
                     const _dif = Helpler_differenceDays(date);
-                    console.log(_dif)
                     if(_dif <= -3) 
                     {
                         array = array.filter((a) => a != date);
@@ -327,7 +326,7 @@
         function Helpler_searchId(id, list=items_storage)
         {
             const _keys = Object.keys(list);
-            if(id <= 0) return list;
+            if(id.length <= 0) return [];
             return _options = _keys.filter((key)=> key.includes(id));
         }
 
@@ -362,12 +361,13 @@
             {
                 const _div = pai.children[1];
                 
+                document.getElementById("next").onclick = create;
+                _div.innerHTML = "";
+                
                 _product.id = e.target.value;
-                if(id >= 3)
+                if(_product.id.length >= 3)
                 {
                     const _options = Helpler_searchId(_product.id);
-    
-                    _div.innerHTML = "";
                     _options.forEach((option) => {
                         _div.appendChild(Helpler_createButton(option, () => {
                             _product.id = option;
@@ -408,7 +408,6 @@
                 
                 _product.date = e.target.value;
                 
-                const _options = Helpler_searchId(_product.date);
                 if(_product.date.length < 1)
                 {
                     next = false;
@@ -545,13 +544,29 @@
 
             _div.appendChild(itemList("id","nome","validade", "forestgreen"));
 
-            Object.keys(Helpler_searchId(id_search, validity_storage)).forEach((key) => {
-                const id = key;
-                const name = items_storage[key];
-                validity_storage[key].forEach((date) => {
-                    _list.push([id, name, date]);
+            const _search = Helpler_searchId(id_search, validity_storage);
+
+            if(_search.length <= 0)
+            {
+                Object.keys(validity_storage).forEach((key) => {
+                    const id = key;
+                    const name = items_storage[key];
+                    validity_storage[key].forEach((date) => {
+                        _list.push([id, name, date]);
+                    });
                 });
-            });
+            }
+            else
+            {
+                _search.forEach((key) => {
+                    const id = key;
+                    const name = items_storage[key];
+                    validity_storage[key].forEach((date) => {
+                        _list.push([id, name, date]);
+                    });
+                });
+            }
+            
             _list.sort(List_ord);
             _list.forEach((data) => {
                 _div.appendChild(itemList(data[0],data[1],List_correctingDate(data[2]), List_cor(data[2])));
@@ -562,8 +577,8 @@
 
         function List_reloadPage(e)
         {
-            if(e.target.value <= 3) return;
-            id_search = e.target.value;
+            id_search = "";
+            if(!(e.target.value.length <= 3)) id_search = e.target.value;
             _page.removeChild(document.getElementById("lista"));
             List_assembleList();
         }
