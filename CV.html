@@ -14,6 +14,14 @@
             border: 2px solid black;
         }
         
+        * input
+        {
+            background-color: darkgray;
+            width: 80vw;
+            font-size: x-large;
+            border-radius: 10px;
+        }
+
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button
         {
@@ -114,13 +122,6 @@
             text-align: center;
 
         }
-        #message input
-        {
-            background-color: darkgray;
-            width: 80vw;
-            font-size: x-large;
-            border-radius: 10px;
-        }
 
         #X
         {
@@ -177,7 +178,7 @@
             align-items: center;
             justify-content: space-evenly;
             margin-top: 2vh;
-            max-height: 80vh;
+            max-height: 70vh;
             overflow: auto;
         }
         #linha
@@ -196,6 +197,15 @@
             overflow: auto;
             font-size: x-large;
         }
+
+        #barra_pesquisa
+        {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2vh;
+        }
     </style>
 </head>
 <body>
@@ -209,6 +219,7 @@
         let items_storage = {};
         let validity_storage = {};
         let current_page = "Home";
+        let id_search = "";
 
         //#endregion
 
@@ -313,10 +324,10 @@
             window.localStorage.setItem(_name_storage, string_item);
         }
 
-        function Helpler_searchId(id)
+        function Helpler_searchId(id, list=items_storage)
         {
-            const _keys = Object.keys(items_storage);
-            if(id <= 0) return [];
+            const _keys = Object.keys(list);
+            if(id <= 0) return list;
             return _options = _keys.filter((key)=> key.includes(id));
         }
 
@@ -352,18 +363,23 @@
                 const _div = pai.children[1];
                 
                 _product.id = e.target.value;
-                
-                const _options = Helpler_searchId(_product.id);
-
-                _div.innerHTML = "";
-                _options.forEach((option) => {
-                    _div.appendChild(Helpler_createButton(option, () => {
-                        _product.id = option;
-                        _product.name = items_storage[option];
-                        next = true;
-                        create();
-                    }, "op"))
-                });
+                if(id >= 3)
+                {
+                    const _options = Helpler_searchId(_product.id);
+    
+                    _div.innerHTML = "";
+                    _options.forEach((option) => {
+                        _div.appendChild(Helpler_createButton(option, () => {
+                            _product.id = option;
+                            e.target.value = option;
+                            document.getElementById("next").onclick = () => {
+                                _product.name = items_storage[option];
+                                next = true;
+                                create();
+                            };
+                        }, "op"))
+                    });
+                }
                 if(_product.id.length >= 1)
                 {
                     next = true;
@@ -375,8 +391,7 @@
                 const _div = pai.children[1];
                 
                 _product.name = e.target.value;
-                
-                const _options = Helpler_searchId(_product.name);
+
                 if(_product.name.length < 1)
                 {
                     next = false;
@@ -485,7 +500,7 @@
         {
             const _dif = Helpler_differenceDays(date);
             if(_dif < 0) return "gray";
-            if(_dif < 3) return "red";
+            if(_dif < 31) return "red";
             return "lime";
         }
 
@@ -530,7 +545,7 @@
 
             _div.appendChild(itemList("id","nome","validade", "forestgreen"));
 
-            Object.keys(validity_storage).forEach((key) => {
+            Object.keys(Helpler_searchId(id_search, validity_storage)).forEach((key) => {
                 const id = key;
                 const name = items_storage[key];
                 validity_storage[key].forEach((date) => {
@@ -545,12 +560,31 @@
             _page.appendChild(_div);
         }
 
+        function List_reloadPage(e)
+        {
+            if(e.target.value <= 3) return;
+            id_search = e.target.value;
+            _page.removeChild(document.getElementById("lista"));
+            List_assembleList();
+        }
+
+        function List_search()
+        {
+            const _div = Helpler_createDiv("barra_pesquisa");
+            _div.innerHTML = "<input id=search type=text></input>";
+            _div.firstChild.onkeyup = List_reloadPage;
+            _page.appendChild(_div);
+        }
+
 
         function List_createPage()
         {
+            id_search = "";
             Helpler_getStorage();
             
             Component_header();
+
+            List_search();
 
             List_assembleList();
         }
