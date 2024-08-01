@@ -196,6 +196,7 @@
             text-align: center;
             overflow: auto;
             font-size: x-large;
+            white-space: nowrap;
         }
 
         #barra_pesquisa
@@ -586,7 +587,7 @@
         function List_search()
         {
             const _div = Helpler_createDiv("barra_pesquisa");
-            _div.innerHTML = "<input id=search type=text></input>";
+            _div.innerHTML = "<input id=search type=number></input>";
             _div.firstChild.onkeyup = List_reloadPage;
             _page.appendChild(_div);
         }
